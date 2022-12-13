@@ -3,7 +3,7 @@ package models
 import (
 	"context"
 
-	"github.com/emika-team/line-oa-manager/pkg/firebase"
+	"github.com/emika-team/line-oa-manager/internal/firebase"
 )
 
 type Message struct {
