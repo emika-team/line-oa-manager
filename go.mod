@@ -6,7 +6,6 @@ require (
 	cloud.google.com/go/firestore v1.9.0
 	firebase.google.com/go/v4 v4.10.0
 	github.com/joho/godotenv v1.4.0
-	github.com/labstack/echo v3.3.10+incompatible
 	github.com/labstack/echo/v4 v4.9.1
 )
 
