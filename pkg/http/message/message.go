@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/emika-team/line-oa-manager/internal/firebase/models"
+	"github.com/emika-team/line-oa-manager/pkg/firebase/models"
 	"github.com/labstack/echo/v4"
 )
 
