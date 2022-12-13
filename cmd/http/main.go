@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/labstack/echo/v4"
 
-	message "github.com/emika-team/line-oa-manager/internal/http/message"
+	message "github.com/emika-team/line-oa-manager/pkg/http/message"
 )
 
 func main() {
