@@ -33,6 +33,7 @@ func GetContent(c echo.Context) error {
 			}
 			err := message.Create()
 			if err != nil {
+				fmt.Println(err)
 				return c.JSON(http.StatusInternalServerError, "internal server error")
 			}
 		}
