@@ -17,12 +17,27 @@ func GetContent(c echo.Context) error {
 	fmt.Println(content)
 	for _, v := range content["events"].([]interface{}) {
 		t := v.(map[string]interface{})["type"]
+
+		userId, ok := v.(map[string]interface{})["source"].(map[string]interface{})["userId"].(string)
+		if !ok {
+			userId = ""
+		}
+		m := v.(map[string]interface{})["message"].(map[string]interface{})
+		mtype, ok := m["type"].(string)
+		if !ok {
+			mtype = ""
+		}
+		mtext, ok := m["text"].(string)
+		if !ok {
+			mtext = ""
+		}
+
 		if t == "message" {
 			message := models.Message{
 				Destination:        content["destination"].(string),
-				UID:                v.(map[string]interface{})["source"].(map[string]interface{})["userId"].(string),
-				Type:               v.(map[string]interface{})["message"].(map[string]interface{})["type"].(string),
-				Text:               v.(map[string]interface{})["message"].(map[string]interface{})["text"].(string),
+				UID:                userId,
+				Type:               mtype,
+				Text:               mtext,
 				Emojis:             []models.Emoji{},
 				PackageID:          "",
 				StickerID:          "",
