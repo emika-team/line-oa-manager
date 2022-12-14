@@ -5,4 +5,5 @@ RUN go build -o bin/server cmd/http/main.go
 
 FROM scratch
 COPY --from=builder /app/bin/server /server
+EXPOSE 1323
 ENTRYPOINT ["/server"]
