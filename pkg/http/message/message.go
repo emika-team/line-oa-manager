@@ -18,21 +18,20 @@ func GetContent(c echo.Context) error {
 	for _, v := range content["events"].([]interface{}) {
 		t := v.(map[string]interface{})["type"]
 
-		userId, ok := v.(map[string]interface{})["source"].(map[string]interface{})["userId"].(string)
-		if !ok {
-			userId = ""
-		}
-		m := v.(map[string]interface{})["message"].(map[string]interface{})
-		mtype, ok := m["type"].(string)
-		if !ok {
-			mtype = ""
-		}
-		mtext, ok := m["text"].(string)
-		if !ok {
-			mtext = ""
-		}
-
 		if t == "message" {
+			userId, ok := v.(map[string]interface{})["source"].(map[string]interface{})["userId"].(string)
+			if !ok {
+				userId = ""
+			}
+			m := v.(map[string]interface{})["message"].(map[string]interface{})
+			mtype, ok := m["type"].(string)
+			if !ok {
+				mtype = ""
+			}
+			mtext, ok := m["text"].(string)
+			if !ok {
+				mtext = ""
+			}
 			message := models.Message{
 				Destination:        content["destination"].(string),
 				UID:                userId,
