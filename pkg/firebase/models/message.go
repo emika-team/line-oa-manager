@@ -19,11 +19,13 @@ type Message struct {
 	PreviewImageUrl    string  `json:"previewImageUrl"`
 	TrackingId         string  `json:"trackingId"`
 	Duration           int     `json:"duration"`
+	IsRead             bool    `json:"isRead"`
 	CreatedAt          int64   `json:"createdAt"`
 	UpdatedAt          int64   `json:"updatedAt"`
 }
 
 func (m *Message) Create() error {
+	m.IsRead = false
 	m.CreatedAt = time.Now().Unix()
 	m.UpdatedAt = time.Now().Unix()
 	_, _, err := firebase.FirestoreClient.Collection("messages").Add(context.Background(), m)
