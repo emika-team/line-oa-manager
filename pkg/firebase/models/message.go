@@ -2,6 +2,7 @@ package models
 
 import (
 	"context"
+	"time"
 
 	"github.com/emika-team/line-oa-manager/pkg/firebase"
 )
@@ -18,9 +19,13 @@ type Message struct {
 	PreviewImageUrl    string  `json:"previewImageUrl"`
 	TrackingId         string  `json:"trackingId"`
 	Duration           int     `json:"duration"`
+	CreatedAt          int64   `json:"createdAt"`
+	UpdatedAt          int64   `json:"updatedAt"`
 }
 
 func (m *Message) Create() error {
+	m.CreatedAt = time.Now().Unix()
+	m.UpdatedAt = time.Now().Unix()
 	_, _, err := firebase.FirestoreClient.Collection("messages").Add(context.Background(), m)
 	if err != nil {
 		return err
