@@ -9,7 +9,7 @@ import (
 
 type Message struct {
 	Destination        string  `json:"destination" firestore:"destination"`
-	UID                string  `json:"uid" firestore:"uid"`
+	UID                string  `json:"-" firestore:"-"`
 	Type               string  `json:"type" firestore:"type"`
 	Text               string  `json:"text" firestore:"text"`
 	Emojis             []Emoji `json:"emojis" firestore:"emojis"`
@@ -28,7 +28,7 @@ func (m *Message) Create() error {
 	m.IsRead = false
 	m.CreatedAt = time.Now().Unix()
 	m.UpdatedAt = time.Now().Unix()
-	_, _, err := firebase.FirestoreClient.Collection("messages").Add(context.Background(), m)
+	_, err := firebase.FirestoreClient.Collection("messages").Doc(m.UID).Set(context.Background(), m)
 	if err != nil {
 		return err
 	}
