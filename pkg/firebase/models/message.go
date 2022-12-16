@@ -7,6 +7,12 @@ import (
 	"github.com/emika-team/line-oa-manager/pkg/firebase"
 )
 
+type Emoji struct {
+	Index     int    `json:"index"`
+	ProductID string `json:"productId"`
+	EmojiID   string `json:"emojiId"`
+}
+
 type Message struct {
 	Destination        string  `json:"destination" firestore:"destination"`
 	UID                string  `json:"-" firestore:"-"`
@@ -20,15 +26,15 @@ type Message struct {
 	TrackingId         string  `json:"trackingId" firestore:"trackingId"`
 	Duration           int     `json:"duration" firestore:"duration"`
 	IsRead             bool    `json:"isRead" firestore:"isRead"`
+	Sender             string  `json:"sender" firestore:"sender"`
 	CreatedAt          int64   `json:"createdAt" firestore:"createdAt"`
 	UpdatedAt          int64   `json:"updatedAt" firestore:"updatedAt"`
 }
 
 func (m *Message) Create() error {
-	m.IsRead = false
 	m.CreatedAt = time.Now().Unix()
 	m.UpdatedAt = time.Now().Unix()
-	_, err := firebase.FirestoreClient.Collection("messages").Doc(m.UID).Set(context.Background(), m)
+	_, _, err := firebase.FirestoreClient.Collection("chat").Doc(m.UID).Collection("messages").Add(context.Background(), m)
 	if err != nil {
 		return err
 	}

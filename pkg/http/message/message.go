@@ -44,6 +44,8 @@ func GetContent(c echo.Context) error {
 				PreviewImageUrl:    "",
 				TrackingId:         "",
 				Duration:           0,
+				IsRead:             false,
+				Sender:             userId,
 			}
 			err := message.Create()
 			if err != nil {
