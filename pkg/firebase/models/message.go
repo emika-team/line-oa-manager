@@ -46,7 +46,7 @@ func (m *Message) Create() error {
 	if err != nil {
 		return err
 	}
-	_, _, err = chatCol.Parent.Collection("messages").Add(context.Background(), m)
+	_, _, err = chatCol.Doc(m.UID).Collection("messages").Add(context.Background(), m)
 	if err != nil {
 		return err
 	}
