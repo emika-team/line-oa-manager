@@ -32,14 +32,18 @@ type Message struct {
 }
 
 type Chat struct {
-	RecentMessage string `json:"recentMessage" firestore:"recentMessage"`
+	RecentMessageType string    `json:"recentMessageType" firestore:"recentMessageType"`
+	RecentMessage     string    `json:"recentMessage" firestore:"recentMessage"`
+	RecentAt          time.Time `json:"recentAt" firestore:"recentAt"`
 }
 
 func (m *Message) Create() error {
 	m.CreatedAt = time.Now().Unix()
 	m.UpdatedAt = time.Now().Unix()
 	c := Chat{
-		RecentMessage: m.Text,
+		RecentMessageType: m.Type,
+		RecentMessage:     m.Text,
+		RecentAt:          time.Now(),
 	}
 	chatCol := firebase.FirestoreClient.Collection("chat")
 	_, err := chatCol.Doc(m.UID).Set(context.Background(), c)
