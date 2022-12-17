@@ -31,10 +31,22 @@ type Message struct {
 	UpdatedAt          int64   `json:"updatedAt" firestore:"updatedAt"`
 }
 
+type Chat struct {
+	RecentMessage string `json:"recentMessage" firestore:"recentMessage"`
+}
+
 func (m *Message) Create() error {
 	m.CreatedAt = time.Now().Unix()
 	m.UpdatedAt = time.Now().Unix()
-	_, _, err := firebase.FirestoreClient.Collection("chat").Doc(m.UID).Collection("messages").Add(context.Background(), m)
+	c := Chat{
+		RecentMessage: m.Text,
+	}
+	chatCol := firebase.FirestoreClient.Collection("chat")
+	_, _, err := chatCol.Doc(m.UID).Parent.Add(context.Background(), c)
+	if err != nil {
+		return err
+	}
+	_, _, err = chatCol.Parent.Collection("messages").Add(context.Background(), m)
 	if err != nil {
 		return err
 	}
