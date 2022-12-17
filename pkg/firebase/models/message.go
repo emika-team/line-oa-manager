@@ -42,7 +42,7 @@ func (m *Message) Create() error {
 		RecentMessage: m.Text,
 	}
 	chatCol := firebase.FirestoreClient.Collection("chat")
-	_, _, err := chatCol.Doc(m.UID).Parent.Add(context.Background(), c)
+	_, err := chatCol.Doc(m.UID).Set(context.Background(), c)
 	if err != nil {
 		return err
 	}
