@@ -32,6 +32,7 @@ type Message struct {
 }
 
 type Chat struct {
+	IsRead            bool      `json:"isRead" firestore:"isRead"`
 	RecentMessageType string    `json:"recentMessageType" firestore:"recentMessageType"`
 	RecentMessage     string    `json:"recentMessage" firestore:"recentMessage"`
 	RecentAt          time.Time `json:"recentAt" firestore:"recentAt"`
@@ -41,6 +42,7 @@ func (m *Message) Create() error {
 	m.CreatedAt = time.Now().Unix()
 	m.UpdatedAt = time.Now().Unix()
 	c := Chat{
+		IsRead:            m.IsRead,
 		RecentMessageType: m.Type,
 		RecentMessage:     m.Text,
 		RecentAt:          time.Now(),
