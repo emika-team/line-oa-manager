@@ -14,6 +14,7 @@ type Emoji struct {
 }
 
 type Message struct {
+	ID                 string  `json:"-" firestore:"-"`
 	Destination        string  `json:"destination" firestore:"destination"`
 	UID                string  `json:"-" firestore:"-"`
 	Type               string  `json:"type" firestore:"type"`
@@ -51,7 +52,7 @@ func (m *Message) Create() error {
 	if err != nil {
 		return err
 	}
-	_, _, err = chatCol.Doc(m.UID).Collection("messages").Add(context.Background(), m)
+	_, err = chatCol.Doc(m.UID).Collection("messages").Doc(m.ID).Set(context.Background(), m)
 	if err != nil {
 		return err
 	}
