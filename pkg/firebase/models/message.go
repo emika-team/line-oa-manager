@@ -25,7 +25,6 @@ type Message struct {
 	PreviewImageUrl    string  `json:"previewImageUrl" firestore:"previewImageUrl"`
 	TrackingId         string  `json:"trackingId" firestore:"trackingId"`
 	Duration           int     `json:"duration" firestore:"duration"`
-	IsRead             bool    `json:"isRead" firestore:"isRead"`
 	Sender             string  `json:"sender" firestore:"sender"`
 	CreatedAt          int64   `json:"createdAt" firestore:"createdAt"`
 	UpdatedAt          int64   `json:"updatedAt" firestore:"updatedAt"`
@@ -42,7 +41,7 @@ func (m *Message) Create() error {
 	m.CreatedAt = time.Now().Unix()
 	m.UpdatedAt = time.Now().Unix()
 	c := Chat{
-		IsRead:            m.IsRead,
+		IsRead:            false,
 		RecentMessageType: m.Type,
 		RecentMessage:     m.Text,
 		RecentAt:          time.Now(),
