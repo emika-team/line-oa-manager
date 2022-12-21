@@ -1,14 +1,21 @@
 package message
 
 import (
+	"context"
+	"encoding/base64"
 	"fmt"
 	"net/http"
 
+	"github.com/emika-team/line-oa-manager/pkg/firebase"
 	"github.com/emika-team/line-oa-manager/pkg/firebase/models"
+	httpclient "github.com/emika-team/line-oa-manager/pkg/http/httpclient"
+	response "github.com/emika-team/line-oa-manager/pkg/http/response"
 	"github.com/labstack/echo/v4"
 )
 
-func GetContent(c echo.Context) error {
+var LineEndPoint = "https://api-data.line.me"
+
+func ReceiveMessage(c echo.Context) error {
 	content := map[string]interface{}{}
 	err := c.Bind(&content)
 	if err != nil {
@@ -69,14 +76,35 @@ func GetContent(c echo.Context) error {
 			}
 			err := message.Create()
 			if err != nil {
-				fmt.Println(err)
-				return c.JSON(http.StatusInternalServerError, "internal server error")
+				return response.ReturnInternalServerError(c, err)
 			}
 		}
 	}
 	return c.NoContent(http.StatusNoContent)
 }
 
-func GetImageContent(c echo.Context) error {
-	return nil
+func GetContent(c echo.Context) error {
+	messageID := c.Param("messageId")
+	channelID := c.Param("channelId")
+	documentRef := firebase.FirestoreClient.Collection("channel").Doc(channelID)
+	channel := models.Channel{}
+	documentSnapshot, err := documentRef.Get(context.Background())
+	if err != nil {
+		return response.ReturnInternalServerError(c, err)
+	}
+	err = documentSnapshot.DataTo(&channel)
+	if err != nil {
+		return response.ReturnInternalServerError(c, err)
+	}
+	h := map[string]interface{}{
+		"Authorization": fmt.Sprintf("Bearer %s", channel.AccessToken),
+	}
+	url := fmt.Sprintf("%s/v2/bot/message/%s/content", LineEndPoint, messageID)
+	result, err := httpclient.HttpRequest("GET", url, nil, nil, h)
+	if err != nil {
+		return response.ReturnInternalServerError(c, err)
+	}
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"result": base64.StdEncoding.EncodeToString(result),
+	})
 }

@@ -12,7 +12,8 @@ func main() {
 	e.GET("/", func(c echo.Context) error {
 		return c.String(200, "Hello, World!")
 	})
-	e.POST("/webhook", message.GetContent)
+	e.POST("/webhook", message.ReceiveMessage)
 	e.GET("/channels", channel.GetChannel)
+	e.GET("/channels/:channelId/messages/:messageId", message.GetContent)
 	e.Logger.Fatal(e.Start(":1323"))
 }
