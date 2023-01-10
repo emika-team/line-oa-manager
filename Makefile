@@ -1,5 +1,8 @@
 BINARY_NAME=line-oa-manager
 
+test:
+	godotenv -f .env.testing go test ./...
+
 build:
 	go build -o bin/${BINARY_NAME} cmd/http/main.go
 	GOARCH=amd64 GOOS=darwin go build -o bin/${BINARY_NAME}-darwin cmd/http/main.go

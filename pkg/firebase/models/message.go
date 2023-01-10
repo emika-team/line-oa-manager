@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"cloud.google.com/go/firestore"
 	"github.com/emika-team/line-oa-manager/pkg/firebase"
 )
 
@@ -53,6 +54,23 @@ func (m *Message) Create() error {
 		return err
 	}
 	_, err = chatCol.Doc(m.UID).Collection("messages").Doc(m.ID).Set(context.Background(), m)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *Message) CreateWithTransaction(tx *firestore.Transaction) error {
+	m.CreatedAt = time.Now().Unix()
+	m.UpdatedAt = time.Now().Unix()
+	c := Chat{
+		IsRead:            false,
+		RecentMessageType: m.Type,
+		RecentMessage:     m.Text,
+		RecentAt:          time.Now(),
+	}
+	chatCol := firebase.FirestoreClient.Collection("chat")
+	err := tx.Set(chatCol.Doc(m.UID), c)
 	if err != nil {
 		return err
 	}
