@@ -2,6 +2,7 @@ package models
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"cloud.google.com/go/firestore"
@@ -74,6 +75,7 @@ func (m *Message) CreateWithTransaction(tx *firestore.Transaction) error {
 	if err != nil {
 		return err
 	}
+	fmt.Println(m)
 	err = tx.Set(chatCol.Doc(m.UID).Collection("messages").Doc(m.ID), m)
 	if err != nil {
 		return err
