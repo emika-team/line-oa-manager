@@ -158,14 +158,14 @@ func SendMessage(c echo.Context) error {
 	if err != nil {
 		return response.ReturnInternalServerError(c, err)
 	}
-	event := map[string]interface{}{
+	event := interface{}(map[string]interface{}{
 		"sender": channel.ChannelID,
 		"source": map[string]interface{}{
 			"userId": content["to"],
 		},
 		"type":    "message",
 		"message": content["message"],
-	}
+	})
 	m := buildMessage(event, "")
 	err = firebase.FirestoreClient.RunTransaction(context.Background(), func(ctx context.Context, tx *firestore.Transaction) error {
 		err := m.CreateWithTransaction(tx)
