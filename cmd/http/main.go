@@ -15,5 +15,6 @@ func main() {
 	e.POST("/webhook", message.ReceiveMessage)
 	e.GET("/channels", channel.GetChannel)
 	e.GET("/channels/:channelId/messages/:messageId", message.GetContent)
+	e.POST("/channels/:channelId/messages", message.SendMessage)
 	e.Logger.Fatal(e.Start(":1323"))
 }
