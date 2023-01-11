@@ -74,5 +74,9 @@ func (m *Message) CreateWithTransaction(tx *firestore.Transaction) error {
 	if err != nil {
 		return err
 	}
+	err = tx.Set(chatCol.Doc(m.UID).Collection("messages").Doc(m.ID), m)
+	if err != nil {
+		return err
+	}
 	return nil
 }
