@@ -3,6 +3,7 @@ package message
 import (
 	"context"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -11,6 +12,7 @@ import (
 	"github.com/emika-team/line-oa-manager/pkg/firebase/models"
 	httpclient "github.com/emika-team/line-oa-manager/pkg/http/httpclient"
 	response "github.com/emika-team/line-oa-manager/pkg/http/response"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
 
@@ -94,7 +96,6 @@ func ReceiveMessage(c echo.Context) error {
 	if err != nil {
 		return c.String(http.StatusBadRequest, "bad request")
 	}
-	fmt.Println(content)
 	err = firebase.FirestoreClient.RunTransaction(context.Background(), func(ctx context.Context, tx *firestore.Transaction) error {
 		for _, v := range content["events"].([]interface{}) {
 			t := v.(map[string]interface{})["type"]
@@ -158,13 +159,24 @@ func SendMessage(c echo.Context) error {
 	if err != nil {
 		return response.ReturnInternalServerError(c, err)
 	}
+	messages := []map[string]interface{}{}
+	jsonMessages, err := json.Marshal(content["messages"].([]interface{}))
+	if err != nil {
+		return response.ReturnInternalServerError(c, err)
+	}
+	err = json.Unmarshal([]byte(jsonMessages), &messages)
+	if err != nil {
+		return response.ReturnInternalServerError(c, err)
+	}
+	message := messages[0]
+	message["id"] = uuid.New().String()
 	event := interface{}(map[string]interface{}{
 		"sender": channel.ChannelID,
 		"source": map[string]interface{}{
 			"userId": content["to"],
 		},
 		"type":    "message",
-		"message": content["message"],
+		"message": message,
 	})
 	m := buildMessage(event, "")
 	err = firebase.FirestoreClient.RunTransaction(context.Background(), func(ctx context.Context, tx *firestore.Transaction) error {
@@ -173,11 +185,16 @@ func SendMessage(c echo.Context) error {
 			return err
 		}
 		h := map[string]interface{}{
-			"Authorization": fmt.Sprintf("Bearer %s", channel.AccessToken),
-			"Content-Type":  "application/json",
+			"Authorization":    fmt.Sprintf("Bearer %s", channel.AccessToken),
+			"Content-Type":     "application/json",
+			"X-Line-Retry-Key": message["id"].(string),
 		}
 		url := fmt.Sprintf("%s/v2/bot/message/push", LineAPIEndPoint)
-		_, err = httpclient.HttpRequest("POST", url, content, nil, h)
+		data := map[string]interface{}{
+			"to":       content["to"],
+			"messages": []interface{}{message},
+		}
+		_, err = httpclient.HttpRequest("POST", url, data, nil, h)
 		if err != nil {
 			return err
 		}
