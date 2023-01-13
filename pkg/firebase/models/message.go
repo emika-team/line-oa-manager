@@ -64,8 +64,12 @@ func (m *Message) Create() error {
 func (m *Message) CreateWithTransaction(tx *firestore.Transaction) error {
 	m.CreatedAt = time.Now().Unix()
 	m.UpdatedAt = time.Now().Unix()
+	isRead := false
+	if m.Destination == "" {
+		isRead = true
+	}
 	c := Chat{
-		IsRead:            false,
+		IsRead:            isRead,
 		RecentMessageType: m.Type,
 		RecentMessage:     m.Text,
 		RecentAt:          time.Now(),
