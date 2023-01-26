@@ -5,6 +5,8 @@ ARG PUBLIC_KEY
 
 ENV GO111MODULE=on CGO_ENABLED=0
 
+RUN mkdir /root/.ssh
+
 RUN echo "$PRIVATE_KEY" > /root/.ssh/id_rsa && \
     echo "$PUBLIC_KEY" > /root/.ssh/id_rsa.pub && \
     chmod 600 /root/.ssh/id_rsa && \
