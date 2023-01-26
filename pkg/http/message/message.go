@@ -8,87 +8,15 @@ import (
 	"net/http"
 
 	"cloud.google.com/go/firestore"
+	"github.com/emika-team/line-oa-manager/pkg/dto"
 	"github.com/emika-team/line-oa-manager/pkg/firebase"
 	"github.com/emika-team/line-oa-manager/pkg/firebase/models"
 	httpclient "github.com/emika-team/line-oa-manager/pkg/http/httpclient"
 	response "github.com/emika-team/line-oa-manager/pkg/http/response"
+	"github.com/emika-team/line-oa-manager/pkg/utils"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
-
-var LineAPIDataEndPoint = "https://api-data.line.me"
-var LineAPIEndPoint = "https://api.line.me"
-
-func buildMessage(event interface{}, destination string) models.Message {
-	m := event.(map[string]interface{})["message"].(map[string]interface{})
-	userId, ok := event.(map[string]interface{})["source"].(map[string]interface{})["userId"].(string)
-	if !ok {
-		userId = ""
-	}
-	mtype, ok := m["type"].(string)
-	if !ok {
-		mtype = ""
-	}
-	mtext, ok := m["text"].(string)
-	if !ok {
-		mtext = ""
-	}
-	emojis := []models.Emoji{}
-	e, ok := m["emojis"].([]interface{})
-	if !ok {
-		e = []interface{}{}
-	}
-	for _, e := range e {
-		emojis = append(emojis, models.Emoji{
-			Index:     int(e.(map[string]interface{})["index"].(float64)),
-			ProductID: e.(map[string]interface{})["productId"].(string),
-			EmojiID:   e.(map[string]interface{})["emojiId"].(string),
-		})
-	}
-	packageId, ok := m["packageId"].(string)
-	if !ok {
-		packageId = ""
-	}
-	stickerId, ok := m["stickerId"].(string)
-	if !ok {
-		stickerId = ""
-	}
-	originalContentUrl, ok := m["originalContentUrl"].(string)
-	if !ok {
-		originalContentUrl = ""
-	}
-	previewImageUrl, ok := m["previewImageUrl"].(string)
-	if !ok {
-		previewImageUrl = ""
-	}
-	trackingId, ok := m["trackingId"].(string)
-	if !ok {
-		trackingId = ""
-	}
-	duration, ok := m["duration"].(float64)
-	if !ok {
-		duration = 0
-	}
-	sender, ok := event.(map[string]interface{})["sender"].(string)
-	if !ok {
-		sender = userId
-	}
-	return models.Message{
-		ID:                 m["id"].(string),
-		Destination:        destination,
-		UID:                userId,
-		Type:               mtype,
-		Text:               mtext,
-		Emojis:             emojis,
-		PackageID:          packageId,
-		StickerID:          stickerId,
-		OriginalContentUrl: originalContentUrl,
-		PreviewImageUrl:    previewImageUrl,
-		TrackingId:         trackingId,
-		Duration:           int(duration),
-		Sender:             sender,
-	}
-}
 
 func ReceiveMessage(c echo.Context) error {
 	content := map[string]interface{}{}
@@ -101,7 +29,7 @@ func ReceiveMessage(c echo.Context) error {
 			t := v.(map[string]interface{})["type"]
 
 			if t == "message" {
-				message := buildMessage(v, content["destination"].(string))
+				message := utils.BuildMessage(v, content["destination"].(string))
 				err := message.CreateWithTransaction(tx)
 				if err != nil {
 					return err
@@ -132,7 +60,7 @@ func GetContent(c echo.Context) error {
 	h := map[string]interface{}{
 		"Authorization": fmt.Sprintf("Bearer %s", channel.AccessToken),
 	}
-	url := fmt.Sprintf("%s/v2/bot/message/%s/content", LineAPIDataEndPoint, messageID)
+	url := fmt.Sprintf("%s/v2/bot/message/%s/content", dto.LineAPIDataEndPoint, messageID)
 	result, err := httpclient.HttpRequest("GET", url, nil, nil, h)
 	if err != nil {
 		return response.ReturnInternalServerError(c, err)
@@ -178,7 +106,7 @@ func SendMessage(c echo.Context) error {
 		"type":    "message",
 		"message": message,
 	})
-	m := buildMessage(event, "")
+	m := utils.BuildMessage(event, "")
 	err = firebase.FirestoreClient.RunTransaction(context.Background(), func(ctx context.Context, tx *firestore.Transaction) error {
 		err := m.CreateWithTransaction(tx)
 		if err != nil {
@@ -189,7 +117,7 @@ func SendMessage(c echo.Context) error {
 			"Content-Type":     "application/json",
 			"X-Line-Retry-Key": message["id"].(string),
 		}
-		url := fmt.Sprintf("%s/v2/bot/message/push", LineAPIEndPoint)
+		url := fmt.Sprintf("%s/v2/bot/message/push", dto.LineAPIEndPoint)
 		data := map[string]interface{}{
 			"to":       content["to"],
 			"messages": []interface{}{message},

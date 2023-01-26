@@ -5,6 +5,7 @@ go 1.19
 require (
 	cloud.google.com/go/firestore v1.9.0
 	firebase.google.com/go/v4 v4.10.0
+	github.com/google/uuid v1.3.0
 	github.com/joho/godotenv v1.4.0
 	github.com/labstack/echo/v4 v4.9.1
 	github.com/stretchr/testify v1.8.1
@@ -19,11 +20,11 @@ require (
 	cloud.google.com/go/storage v1.27.0 // indirect
 	github.com/MicahParks/keyfunc v1.5.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/emika-team/grpc-proto v0.0.2 // indirect
 	github.com/golang-jwt/jwt/v4 v4.4.2 // indirect
 	github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
-	github.com/google/uuid v1.3.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.2.0 // indirect
 	github.com/googleapis/gax-go/v2 v2.7.0 // indirect
 	github.com/labstack/gommon v0.4.0 // indirect
