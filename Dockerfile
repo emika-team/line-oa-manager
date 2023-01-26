@@ -1,24 +1,22 @@
 FROM golang:1.19 as builder
 
+RUN mkdir ~/.ssh && \
+    ssh-keyscan github.com >> ~/.ssh/known_hosts
+
 ARG PRIVATE_KEY
-ARG PUBLIC_KEY
+RUN echo "$PRIVATE_KEY" > ~/.ssh/id_rsa && \
+    chmod 400 ~/.ssh/id_rsa
 
 ENV GO111MODULE=on CGO_ENABLED=0
-
-RUN mkdir /root/.ssh
-
-RUN echo "$PRIVATE_KEY" > /root/.ssh/id_rsa && \
-    echo "$PUBLIC_KEY" > /root/.ssh/id_rsa.pub && \
-    chmod 600 /root/.ssh/id_rsa && \
-    chmod 600 /root/.ssh/id_rsa.pub
 
 RUN git config --global url."git@github.com:".insteadOf "https://github.com/"
 
 WORKDIR /app
 COPY . .
 RUN apt update && apt install ca-certificates && update-ca-certificates
-ARG GITHUB_TOKEN
 RUN go build -o bin/server cmd/http/main.go
+
+RUN rm -rf ~/.ssh/
 
 FROM scratch
 COPY --from=builder /app/bin/server /server
