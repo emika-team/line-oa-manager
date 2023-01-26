@@ -12,6 +12,8 @@ RUN echo "$PRIVATE_KEY" > /root/.ssh/id_rsa && \
     chmod 600 /root/.ssh/id_rsa && \
     chmod 600 /root/.ssh/id_rsa.pub
 
+RUN git config --global url."git@github.com:".insteadOf "https://github.com/"
+
 WORKDIR /app
 COPY . .
 RUN apt update && apt install ca-certificates && update-ca-certificates
