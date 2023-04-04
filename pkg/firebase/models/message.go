@@ -34,6 +34,7 @@ type Message struct {
 }
 
 type Chat struct {
+	ChannelID         string    `json:"channelId" firestore:"channelId"`
 	IsRead            bool      `json:"isRead" firestore:"isRead"`
 	RecentMessageType string    `json:"recentMessageType" firestore:"recentMessageType"`
 	RecentMessage     string    `json:"recentMessage" firestore:"recentMessage"`
@@ -44,6 +45,7 @@ func (m *Message) Create() error {
 	m.CreatedAt = time.Now().Unix()
 	m.UpdatedAt = time.Now().Unix()
 	c := Chat{
+		ChannelID:         m.Destination,
 		IsRead:            false,
 		RecentMessageType: m.Type,
 		RecentMessage:     m.Text,
