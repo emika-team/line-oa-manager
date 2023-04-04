@@ -71,6 +71,7 @@ func (m *Message) CreateWithTransaction(tx *firestore.Transaction) error {
 		isRead = true
 	}
 	c := Chat{
+		ChannelID:         m.Destination,
 		IsRead:            isRead,
 		RecentMessageType: m.Type,
 		RecentMessage:     m.Text,
