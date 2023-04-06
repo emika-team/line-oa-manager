@@ -30,7 +30,7 @@ func ReceiveMessage(c echo.Context) error {
 
 			if t == "message" {
 				message := utils.BuildMessage(v, content["destination"].(string))
-				err := message.CreateWithTransaction(tx)
+				err := message.Create(tx)
 				if err != nil {
 					return err
 				}
@@ -108,7 +108,7 @@ func SendMessage(c echo.Context) error {
 	})
 	m := utils.BuildMessage(event, "")
 	err = firebase.FirestoreClient.RunTransaction(context.Background(), func(ctx context.Context, tx *firestore.Transaction) error {
-		err := m.CreateWithTransaction(tx)
+		err := m.Create(tx)
 		if err != nil {
 			return err
 		}

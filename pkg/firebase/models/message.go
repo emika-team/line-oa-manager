@@ -1,7 +1,6 @@
 package models
 
 import (
-	"context"
 	"fmt"
 	"time"
 
@@ -34,36 +33,14 @@ type Message struct {
 }
 
 type Chat struct {
-	ChannelID         string    `json:"channelId" firestore:"channelId"`
+	ChannelUserID     string    `json:"channelUserId" firestore:"channelUserId"`
 	IsRead            bool      `json:"isRead" firestore:"isRead"`
 	RecentMessageType string    `json:"recentMessageType" firestore:"recentMessageType"`
 	RecentMessage     string    `json:"recentMessage" firestore:"recentMessage"`
 	RecentAt          time.Time `json:"recentAt" firestore:"recentAt"`
 }
 
-func (m *Message) Create() error {
-	m.CreatedAt = time.Now().Unix()
-	m.UpdatedAt = time.Now().Unix()
-	c := Chat{
-		ChannelID:         m.Destination,
-		IsRead:            false,
-		RecentMessageType: m.Type,
-		RecentMessage:     m.Text,
-		RecentAt:          time.Now(),
-	}
-	chatCol := firebase.FirestoreClient.Collection("chat")
-	_, err := chatCol.Doc(m.UID).Set(context.Background(), c)
-	if err != nil {
-		return err
-	}
-	_, err = chatCol.Doc(m.UID).Collection("messages").Doc(m.ID).Set(context.Background(), m)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (m *Message) CreateWithTransaction(tx *firestore.Transaction) error {
+func (m *Message) Create(tx *firestore.Transaction) error {
 	m.CreatedAt = time.Now().Unix()
 	m.UpdatedAt = time.Now().Unix()
 	isRead := false
@@ -71,13 +48,13 @@ func (m *Message) CreateWithTransaction(tx *firestore.Transaction) error {
 		isRead = true
 	}
 	c := Chat{
-		ChannelID:         m.Destination,
+		ChannelUserID:     m.Destination,
 		IsRead:            isRead,
 		RecentMessageType: m.Type,
 		RecentMessage:     m.Text,
 		RecentAt:          time.Now(),
 	}
-	chatCol := firebase.FirestoreClient.Collection("chat")
+	chatCol := firebase.FirestoreClient.Collection("chat").Doc(m.Destination).Collection("line")
 	err := tx.Set(chatCol.Doc(m.UID), c)
 	if err != nil {
 		return err
