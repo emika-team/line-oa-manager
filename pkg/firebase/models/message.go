@@ -54,7 +54,7 @@ func (m *Message) Create(tx *firestore.Transaction) error {
 		RecentMessage:     m.Text,
 		RecentAt:          time.Now(),
 	}
-	chatCol := firebase.FirestoreClient.Collection("chat").Doc(m.Destination).Collection("line")
+	chatCol := firebase.FirestoreClient.Collection("chat").Doc("line").Collection(m.Destination)
 	err := tx.Set(chatCol.Doc(m.UID), c)
 	if err != nil {
 		return err
