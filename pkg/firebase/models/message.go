@@ -1,6 +1,7 @@
 package models
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -54,15 +55,23 @@ func (m *Message) Create(tx *firestore.Transaction) error {
 		RecentMessage:     m.Text,
 		RecentAt:          time.Now(),
 	}
-	chatCol := firebase.FirestoreClient.Collection("chat").Doc("line").Collection(m.Destination)
-	err := tx.Set(chatCol.Doc(m.UID), c)
+	fmt.Println(m)
+	channelCol := firebase.FirestoreClient.Collection("channels").Where("channelUserId", "==", m.Destination).Limit(1)
+	chatDoc, err := channelCol.Documents(context.Background()).Next()
 	if err != nil {
 		return err
 	}
-	fmt.Println(m)
-	err = tx.Set(chatCol.Doc(m.UID).Collection("messages").Doc(m.ID), m)
-	if err != nil {
-		return err
+
+	if chatDoc.Exists() {
+		chatCol := chatDoc.Ref.Collection("chats")
+		err := tx.Set(chatCol.Doc(m.UID), c)
+		if err != nil {
+			return err
+		}
+		err = tx.Set(chatCol.Doc(m.UID).Collection("messages").Doc(m.ID), m)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
