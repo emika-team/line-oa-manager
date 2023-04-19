@@ -47,7 +47,7 @@ func ReceiveMessage(c echo.Context) error {
 func GetContent(c echo.Context) error {
 	messageID := c.Param("messageId")
 	channelID := c.Param("channelId")
-	documentRef := firebase.FirestoreClient.Collection("channel").Doc(channelID)
+	documentRef := firebase.FirestoreClient.Collection("channels").Doc(channelID)
 	channel := models.Channel{}
 	documentSnapshot, err := documentRef.Get(context.Background())
 	if err != nil {
