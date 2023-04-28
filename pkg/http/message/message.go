@@ -97,6 +97,7 @@ func SendMessage(c echo.Context) error {
 	if err != nil {
 		return response.ReturnInternalServerError(c, err)
 	}
+	fmt.Println(messages)
 	message := messages[0]
 	message["id"] = uuid.New().String()
 	event := interface{}(map[string]interface{}{
