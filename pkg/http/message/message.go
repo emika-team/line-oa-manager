@@ -87,6 +87,7 @@ func SendMessage(c echo.Context) error {
 	if err != nil {
 		return response.ReturnInternalServerError(c, err)
 	}
+	fmt.Println(content)
 	messages := []map[string]interface{}{}
 	jsonMessages, err := json.Marshal(content["messages"].([]interface{}))
 	if err != nil {
