@@ -109,6 +109,7 @@ func SendMessage(c echo.Context) error {
 		"message": message,
 	})
 	m := utils.BuildMessage(event, "")
+	fmt.Println(m)
 	err = firebase.FirestoreClient.RunTransaction(context.Background(), func(ctx context.Context, tx *firestore.Transaction) error {
 		err := m.Create(tx)
 		if err != nil {
