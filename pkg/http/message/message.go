@@ -82,6 +82,7 @@ func SendMessage(c echo.Context) error {
 	if err != nil {
 		return response.ReturnInternalServerError(c, err)
 	}
+	fmt.Println(channel)
 	content := map[string]interface{}{}
 	err = c.Bind(&content)
 	if err != nil {
@@ -111,6 +112,7 @@ func SendMessage(c echo.Context) error {
 	m := utils.BuildMessage(event, "")
 	fmt.Println(m)
 	err = firebase.FirestoreClient.RunTransaction(context.Background(), func(ctx context.Context, tx *firestore.Transaction) error {
+		fmt.Println("create message")
 		err := m.Create(tx)
 		if err != nil {
 			return err
@@ -131,6 +133,7 @@ func SendMessage(c echo.Context) error {
 		}
 		return nil
 	})
+	fmt.Println("After transaction")
 	if err != nil {
 		return response.ReturnInternalServerError(c, err)
 	}
