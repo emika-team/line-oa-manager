@@ -82,13 +82,11 @@ func SendMessage(c echo.Context) error {
 	if err != nil {
 		return response.ReturnInternalServerError(c, err)
 	}
-	fmt.Println(channel)
 	content := map[string]interface{}{}
 	err = c.Bind(&content)
 	if err != nil {
 		return response.ReturnInternalServerError(c, err)
 	}
-	fmt.Println(content)
 	messages := []map[string]interface{}{}
 	jsonMessages, err := json.Marshal(content["messages"].([]interface{}))
 	if err != nil {
@@ -98,7 +96,6 @@ func SendMessage(c echo.Context) error {
 	if err != nil {
 		return response.ReturnInternalServerError(c, err)
 	}
-	fmt.Println(messages)
 	message := messages[0]
 	message["id"] = uuid.New().String()
 	event := interface{}(map[string]interface{}{
@@ -109,10 +106,8 @@ func SendMessage(c echo.Context) error {
 		"type":    "message",
 		"message": message,
 	})
-	m := utils.BuildMessage(event, "")
-	fmt.Println(m)
+	m := utils.BuildMessage(event, channel.ChannelUserID)
 	err = firebase.FirestoreClient.RunTransaction(context.Background(), func(ctx context.Context, tx *firestore.Transaction) error {
-		fmt.Println("create message")
 		err := m.Create(tx)
 		if err != nil {
 			return err
@@ -133,7 +128,6 @@ func SendMessage(c echo.Context) error {
 		}
 		return nil
 	})
-	fmt.Println("After transaction")
 	if err != nil {
 		return response.ReturnInternalServerError(c, err)
 	}

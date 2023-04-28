@@ -10,6 +10,7 @@ type Channel struct {
 	ChannelID     string `json:"-" firestore:"-"`
 	ChannelName   string `json:"channelName" firestore:"channelName"`
 	ChannelSecret string `json:"channelSecret" firestore:"channelSecret"`
+	ChannelUserID string `json:"channelUserId" firestore:"channelUserId"`
 	AccessToken   string `json:"accessToken" firestore:"accessToken"`
 }
 
